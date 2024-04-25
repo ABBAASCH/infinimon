@@ -30,11 +30,11 @@
         <!-- display all names in a list -->
         <div>
             <p>Names:</p>
-            <input type="text" id="search" onkeyup="searchPokemon()" placeholder="Search for a Pokemon" class="form-control">
+            <input type="text" id="search" onkeyup="searchPokemon()" placeholder="Search for a Pokemon"
+                class="form-control">
             <ul id="names"></ul>
             <ul cass="names list-group">
         </div>
-
 
     </div>
 
@@ -79,6 +79,7 @@
         });
     }
 
+    /*
     function searchPokemon() {
         // get the search term from the input field
         var searchTerm = $('#search').val().toLowerCase();
@@ -98,4 +99,25 @@
             }
         }
     }
+    */
+
+    function searchPokemon() {
+        var searchTerm = $('#search').val().toLowerCase();
+
+        var regex = new RegExp(searchTerm);
+
+        var names = $('#names li');
+
+        for (var i = 0; i < names.length; i++) {
+            var name = names[i].innerText.toLowerCase();
+
+            // Check if the name starts with the search term
+            if (regex.test(name)) {
+                names[i].style.display = "";
+            } else {
+                names[i].style.display = "none";
+            }
+        }
+    }
+
 </script>
