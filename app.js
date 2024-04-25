@@ -12,14 +12,37 @@ const db = require('./db');
 var app = express();
 
 app.get('/db', async (req, res) => {
-  try {
-    const result = await db.query('SELECT * FROM querytest');
-    res.json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Internal Server Error');
-  }
+    try {
+        const result = await db.query('SELECT * FROM querytest');
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
 });
+
+app.get('/infinimon', async (req, res) => {
+    try {
+        const result = await db.query('SELECT pokemon FROM pokemon');
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
+}
+);
+
+app.post('/search', async (req, res) => {
+    try {
+        const result = await db.query('SELECT * FROM pokemon WHERE pokemon = $1', [req.body.id]);
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
+}
+);
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

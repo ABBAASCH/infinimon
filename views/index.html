@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <title>Document</title>
 </head>
 
@@ -17,7 +19,23 @@
         <a href="/hello">Hello</a>
         <a href="/infmon">Infmon</a>
 
-        <button onclick="getQueryTest()">Get Query Test</button>
+        <button class="btn btn-primary" onclick="getQueryTest()">Get Query Test</button>
+        <button class="btn btn-primary" onclick="getInfinimons()">Get Infinimons</button>
+
+        <div>
+            <p>Content:</p>
+            <div id="content"></div>
+        </div>
+
+        <!-- display all names in a list -->
+        <div>
+            <p>Names:</p>
+            <input type="text" id="search" onkeyup="searchPokemon()" placeholder="Search for a Pokemon" class="form-control">
+            <ul id="names"></ul>
+            <ul cass="names list-group">
+        </div>
+
+
     </div>
 
 </body>
@@ -25,14 +43,59 @@
 </html>
 
 <script>
-function getQueryTest() {
-    // make a get request with ajax
-    $.ajax({
-        url: '/db',
-        type: 'GET',
-        success: function(data) {
-            console.log(data);
+    function getInfinimons() {
+        $.ajax({
+            url: '/infinimon',
+            type: 'GET',
+            success: function (data, status) {
+                console.log(data);
+                let names = data.map(infinimon => infinimon.pokemon);
+                let list = document.getElementById('names');
+                list.innerHTML = '';
+                names.forEach(name => {
+                    let item = document.createElement('li');
+                    item.classList.add('list-group-item');
+                    item.textContent = name;
+                    list.appendChild(item);
+                });
+            }, error: function (err) {
+                console.log(err);
+            }
+        });
+    }
+
+    getInfinimons();
+
+    function getQueryTest() {
+        $.ajax({
+            url: '/db',
+            type: 'GET',
+            success: function (data, status) {
+                console.log(data);
+                document.getElementById('content').innerHTML = data[0].query_word;
+            }, error: function (err) {
+                console.log(err);
+            }
+        });
+    }
+
+    function searchPokemon() {
+        // get the search term from the input field
+        var searchTerm = $('#search').val().toLowerCase();
+
+        // get all the list items in the names list
+        var names = $('#names li');
+
+        // loop through all list items
+        for (var i = 0; i < names.length; i++) {
+            var name = names[i].innerText.toLowerCase();
+
+            // if the list item includes the search term, show it, otherwise hide it
+            if (name.includes(searchTerm)) {
+                names[i].style.display = "";
+            } else {
+                names[i].style.display = "none";
+            }
         }
-    });
-}
+    }
 </script>
