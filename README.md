@@ -1,14 +1,12 @@
-# Hello!
+# Infinimon
 
-This is the beginning
+Commands used for the project are listed below.
 
 ```
+# Connect to db with postgres CLI
 psql -d infinimon -U <username>
 
-COPY pokemon(pokemon,type,species,height,weight,abilities,ev_yield,catch_rate,base_friendship,base_exp,growth_rate,egg_groups,gender,egg_cycles,hp_base,hp_min,hp_max,attack_base,attack_min,attack_max,defense_base,defense_min,defense_max,special_attack_base,special_attack_min,special_attack_max,special_defense_base,special_defense_min,special_defense_max,speed_base,speed_min,speed_max)
-FROM '/Users/theisbaasch/diku/dis/project/data/archive/pokemonDB_dataset.csv'
-DELIMITER ',' CSV HEADER;
-
+# Create the table
 CREATE TABLE pokemon (
 Pokemon VARCHAR(50),
 Type VARCHAR(50),
@@ -43,4 +41,10 @@ Speed_Base INT,
 Speed_Min INT,
 Speed_Max INT
 );
+
+# Populate the table
+COPY pokemon(pokemon,type,species,height,weight,abilities,ev_yield,catch_rate,base_friendship,base_exp,growth_rate,egg_groups,gender,egg_cycles,hp_base,hp_min,hp_max,attack_base,attack_min,attack_max,defense_base,defense_min,defense_max,special_attack_base,special_attack_min,special_attack_max,special_defense_base,special_defense_min,special_defense_max,speed_base,speed_min,speed_max)
+FROM '/path/to/csv/pokemon.csv'
+DELIMITER ',' CSV HEADER;
 ```
+
