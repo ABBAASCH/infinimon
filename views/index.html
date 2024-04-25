@@ -1,18 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-<body>
-  
-    <div>
-      <h1>Home</h1>
-      <p>Welcome to our website !!! </p>
 
-      <a href="/hello">Hello</a>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>Document</title>
+</head>
+
+<body>
+
+    <div>
+        <h1>Home</h1>
+        <p>Welcome to our website !!! </p>
+
+        <a href="/hello">Hello</a>
+        <a href="/infmon">Infmon</a>
+
+        <button onclick="getQueryTest()">Get Query Test</button>
     </div>
-  
+
 </body>
+
 </html>
+
+<script>
+function getQueryTest() {
+    // make a get request with ajax
+    $.ajax({
+        url: '/db',
+        type: 'GET',
+        success: function(data) {
+            console.log(data);
+        }
+    });
+}
+</script>

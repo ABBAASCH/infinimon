@@ -7,19 +7,19 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
+const db = require('./db');
+
 var app = express();
 
-/*
-const { Pool } = require('pg');
-
-const pool = new Pool({
-  user: 'yourUsername',
-  host: 'localhost',
-  database: 'twitter_clone',
-  password: 'yourPassword',
-  port: 5432,
+app.get('/db', async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM querytest');
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
 });
-*/
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -41,23 +41,41 @@ app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  next(createError(404));
+    next(createError(404));
 });
 
 // error handler
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
 });
 
-app.listen(3000, function(){
-    console.log('Server started on port 3000');
+// Make a get to the db
+app.get('/db', async (req, res) => {
+    try {
+        const client = await db.connect();
+        const result = await client.query('SELECT * FROM querytest');
+        const results = { 'results': (result) ? result.rows : null };
+        // return json results
+        res.json(results);
+        //res.render('db', results);
+        client.release();
+        console.log('Client released');
+        console.log(results);
+    } catch (err) {
+        console.error(err);
+        res.send("Error " + err);
     }
+});
+
+app.listen(3000, function() {
+    console.log('Server started on port 3000');
+}
 );
 
 module.exports = app;

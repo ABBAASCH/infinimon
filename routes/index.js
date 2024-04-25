@@ -10,6 +10,11 @@ router.get('/', function(req, res, next) {
 router.get('/hello', function(req, res, next) {
   res.render('hello');
 });
+//
+// Add a new route to /hello
+router.get('/infmon', function(req, res, next) {
+  res.render('infmon');
+});
 
 module.exports = router;
 
