@@ -1,5 +1,11 @@
 # Infinimon
 
+Dependecies:
+```
+# For database connection
+npm install pg
+```
+
 Commands used for the project are listed below.
 
 ```
