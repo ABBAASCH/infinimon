@@ -11,7 +11,8 @@ const db = require('./db');
 
 var app = express();
 
-app.get('/db', async (req, res) => {
+// Only for testing - delete later
+app.get('/db', async (res) => {
     try {
         const result = await db.query('SELECT * FROM querytest');
         res.json(result.rows);
@@ -21,7 +22,7 @@ app.get('/db', async (req, res) => {
     }
 });
 
-app.get('/infinimon', async (req, res) => {
+app.get('/infinimon', async (res) => {
     try {
         const result = await db.query('SELECT pokemon FROM pokemon');
         res.json(result.rows);
@@ -63,12 +64,12 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function(next) {
     next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function(err, req, res) {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -79,7 +80,7 @@ app.use(function(err, req, res, next) {
 });
 
 // Make a get to the db
-app.get('/db', async (req, res) => {
+app.get('/db', async (res) => {
     try {
         const client = await db.connect();
         const result = await client.query('SELECT * FROM querytest');
