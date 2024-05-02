@@ -11,8 +11,8 @@ const db = require('./db');
 
 var app = express();
 
-// Only for testing - delete later
-app.get('/db', async (res) => {
+// For db connection test - do not delete
+app.get('/db', async (req, res) => {
     try {
         const result = await db.query('SELECT * FROM querytest');
         res.json(result.rows);
@@ -22,7 +22,8 @@ app.get('/db', async (res) => {
     }
 });
 
-app.get('/infinimon', async (res) => {
+// Note : do not delete req otherwise it will not work
+app.get('/infinimon', async (req, res) => {
     try {
         const result = await db.query('SELECT pokemon FROM pokemon');
         res.json(result.rows);
@@ -44,15 +45,11 @@ app.post('/search', async (req, res) => {
 }
 );
 
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
-
-// Using html engine instead of jade
-//app.set('view engine', 'jade');
 
 app.use(logger('dev'));
 app.use(express.json());
