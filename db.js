@@ -1,11 +1,12 @@
 const { Pool } = require('pg');
+require('dotenv').config(); // Load environment variables
 
 const pool = new Pool({
-    user: 'theisbaasch',
-    password: '',
-    host: 'localhost',
-    port: 5432,
-    database: 'infinimon'
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_DATABASE,
+    password: process.env.DB_PASSWORD,
+    port: 5432, // Default PostgreSQL port
 });
 
 module.exports = {

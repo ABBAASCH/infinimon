@@ -1,9 +1,15 @@
 # Infinimon
 
-Dependecies:
+Dependencies:
 ```
 # For database connection
 npm install pg
+
+npm install ejs
+
+npm install dotenv
+
+npm install bcrypt passport express-session
 ```
 
 Commands used for the project are listed below.

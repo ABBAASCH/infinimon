@@ -1,0 +1,168 @@
+<%- include('header.html') %>
+
+    <body>
+        <div class="container mt-5">
+            <div class="row mb-4">
+                <div class="col text-center">
+                    <h1>Welcome to Your Dashboard, <%= username %>!</h1>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Current Team Section -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            Your Current Team
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group" id="team-list">
+                                <!-- Example static content for now -->
+                                <li class="list-group-item">Pikachu</li>
+                                <li class="list-group-item">Charizard</li>
+                                <li class="list-group-item">Bulbasaur</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        Search Available Pokémon
+                    </div>
+                    <div class="card-body">
+                        <input type="text" id="search-box" class="form-control mb-3" placeholder="Type to search..."
+                            oninput="filterPokemonList()">
+                        <ul id="names" class="list-group" style="max-height: 250px; overflow-y: auto; width: 400px;">
+                            <!-- List items will be populated dynamically -->
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Battle Button Section -->
+            <div class="row justify-content-center mt-4">
+                <div class="col text-center">
+                    <a href="/battle" class="btn btn-danger btn-lg">Go to Battle!</a>
+                </div>
+            </div>
+
+            <!-- Pokémon Info Modal -->
+            <div class="modal fade" id="pokemonInfoModal" tabindex="-1" aria-labelledby="pokemonInfoModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="pokemonInfoModalLabel">Pokémon Information</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col text-center">
+                                    <img id="pokemon-image" src="" alt="Pokémon Image" class="img-fluid mb-3">
+                                </div>
+                                <div class="col">
+                                    <ul id="pokemon-details" class="list-group"></ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+
+    <script>
+        // This will hold the list of all available Pokémon for filtering purposes
+        let allPokemons = [];
+
+        // Retrieve the user's Pokémon team or all available Pokémon
+        function getInfinimons() {
+            $.ajax({
+                url: '/infinimon',
+                type: 'GET',
+                success: function (data) {
+                    allPokemons = data.map((infinimon) => infinimon.pokemon);
+                    populatePokemonList(allPokemons);
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        }
+
+        // Populate the Pokémon list dynamically
+        function populatePokemonList(pokemons) {
+            const list = document.getElementById('names');
+            list.innerHTML = '';
+
+            pokemons.forEach((name) => {
+                // Create a list item with an info button
+                const item = document.createElement('li');
+                item.classList.add('list-group-item', 'pokemon-item', 'd-flex', 'justify-content-between', 'align-items-center');
+                item.innerHTML = `
+            ${name}
+            <button class="btn btn-info btn-sm" onclick="showPokemonInfo('${name}')">
+                <i class="bi bi-info-circle"></i> Info
+            </button>
+        `;
+                list.appendChild(item);
+            });
+        }
+
+        // Filter the Pokémon list based on the search box input
+        function filterPokemonList() {
+            const searchQuery = document.getElementById('search-box').value.toLowerCase();
+            const filteredPokemons = allPokemons.filter((name) => name.toLowerCase().includes(searchQuery));
+            populatePokemonList(filteredPokemons);
+        }
+
+        // Function to show Pokémon info in a modal
+        function showPokemonInfo(pokemonName) {
+            $.ajax({
+                url: '/pokemon/' + pokemonName,
+                type: 'GET',
+                success: function (data) {
+                    // Set image and information in the modal
+                    console.log(data);
+                    document.getElementById('pokemon-image').src = data.image;
+                    const detailsList = document.getElementById('pokemon-details');
+                    detailsList.innerHTML = '';
+
+                    // Add relevant data points to the list
+                    const fields = [
+                        'type', 'species', 'height', 'weight', 'abilities', 'ev_yield', 'catch_rate',
+                        'base_friendship', 'base_exp', 'growth_rate', 'egg_groups', 'gender',
+                        'hp_base', 'attack_base', 'defense_base', 'special_attack_base',
+                        'special_defense_base', 'speed_base'
+                    ];
+                    fields.forEach((field) => {
+                        const value = data[field];
+                        if (value) {
+                            const listItem = document.createElement('li');
+                            listItem.classList.add('list-group-item');
+                            listItem.innerText = `${field}: ${value}`;
+                            detailsList.appendChild(listItem);
+                        }
+                    });
+
+                    // Show the modal
+                    new bootstrap.Modal(document.getElementById('pokemonInfoModal')).show();
+                },
+                error: function (err) {
+                    console.log(err);
+                    alert('Error fetching Pokémon data');
+                }
+            });
+        }
+
+        // Initial Pokémon load
+        getInfinimons();
+
+    </script>

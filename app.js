@@ -4,46 +4,12 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+const session = require('express-session');
+
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
-const db = require('./db');
-
 var app = express();
-
-// For db connection test - do not delete
-app.get('/db', async (req, res) => {
-    try {
-        const result = await db.query('SELECT * FROM querytest');
-        res.json(result.rows);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-// Note : do not delete req otherwise it will not work
-app.get('/infinimon', async (req, res) => {
-    try {
-        const result = await db.query('SELECT pokemon FROM pokemon');
-        res.json(result.rows);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Internal Server Error');
-    }
-}
-);
-
-app.post('/search', async (req, res) => {
-    try {
-        const result = await db.query('SELECT * FROM pokemon WHERE pokemon = $1', [req.body.id]);
-        res.json(result.rows);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Internal Server Error');
-    }
-}
-);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -56,6 +22,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Initialize session
+app.use(
+  session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: false
+  })
+);
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
@@ -74,24 +49,6 @@ app.use(function(err, req, res) {
     // render the error page
     res.status(err.status || 500);
     res.render('error');
-});
-
-// Make a get to the db
-app.get('/db', async (res) => {
-    try {
-        const client = await db.connect();
-        const result = await client.query('SELECT * FROM querytest');
-        const results = { 'results': (result) ? result.rows : null };
-        // return json results
-        res.json(results);
-        //res.render('db', results);
-        client.release();
-        console.log('Client released');
-        console.log(results);
-    } catch (err) {
-        console.error(err);
-        res.send("Error " + err);
-    }
 });
 
 app.listen(3000, function() {
