@@ -17,10 +17,6 @@
                         </div>
                         <div class="card-body">
                             <ul class="list-group" id="team-list">
-                                <!-- Example static content for now -->
-                                <li class="list-group-item">Pikachu</li>
-                                <li class="list-group-item">Charizard</li>
-                                <li class="list-group-item">Bulbasaur</li>
                             </ul>
                         </div>
                     </div>
@@ -103,15 +99,20 @@
             list.innerHTML = '';
 
             pokemons.forEach((name) => {
-                // Create a list item with an info button
+                // Create a list item with info and add-to-team buttons
                 const item = document.createElement('li');
                 item.classList.add('list-group-item', 'pokemon-item', 'd-flex', 'justify-content-between', 'align-items-center');
                 item.innerHTML = `
-            ${name}
-            <button class="btn btn-info btn-sm" onclick="showPokemonInfo('${name}')">
-                <i class="bi bi-info-circle"></i> Info
-            </button>
-        `;
+                    ${name}
+                    <div>
+                        <button class="btn btn-info btn-sm mr-2" onclick="showPokemonInfo('${name}')">
+                            <i class="bi bi-info-circle"></i> Info
+                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="addToTeam('${name}')">
+                            <i class="bi bi-plus-circle"></i> Add to Team
+                        </button>
+                    </div>
+                `;
                 list.appendChild(item);
             });
         }
@@ -123,6 +124,26 @@
             populatePokemonList(filteredPokemons);
         }
 
+        // Add Pokémon to the user's team list
+        function addToTeam(pokemonName) {
+            const teamList = document.getElementById('team-list');
+
+            // Check if the Pokémon is already in the team
+            const existingItem = Array.from(teamList.children).find(
+                (item) => item.textContent.trim().startsWith(pokemonName)
+            );
+            if (existingItem) {
+                alert(`${pokemonName} is already in your team.`);
+                return;
+            }
+
+            // Add the Pokémon to the team list
+            const listItem = document.createElement('li');
+            listItem.classList.add('list-group-item');
+            listItem.textContent = pokemonName;
+            teamList.appendChild(listItem);
+        }
+
         // Function to show Pokémon info in a modal
         function showPokemonInfo(pokemonName) {
             $.ajax({
@@ -130,7 +151,6 @@
                 type: 'GET',
                 success: function (data) {
                     // Set image and information in the modal
-                    console.log(data);
                     document.getElementById('pokemon-image').src = data.image;
                     const detailsList = document.getElementById('pokemon-details');
                     detailsList.innerHTML = '';
