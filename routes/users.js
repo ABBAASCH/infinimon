@@ -88,4 +88,9 @@ router.get('/profile', checkAuthenticated, (req, res) => {
     res.render('profile.html', { username: username, userId: userId });
 });
 
+router.get('/battle', checkAuthenticated, async (req, res) => {
+    const userId = req.session.userId;
+    res.render('battle.html', { userId: userId });
+});
+
 module.exports = router;

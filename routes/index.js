@@ -20,7 +20,7 @@ router.get('/db', async (req, res) => {
 
 router.get('/infinimon', async (req, res) => {
     try {
-        const result = await db.query('SELECT pokemon, id FROM pokemon');
+        const result = await db.query('SELECT pokemon, id, hp_base, attack_base FROM pokemon');
         res.json(result.rows);
     } catch (err) {
         console.error(err);

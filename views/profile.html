@@ -37,7 +37,7 @@
             <!-- Battle Button Section -->
             <div class="row justify-content-center mt-4">
                 <div class="col text-center">
-                    <a href="/battle" class="btn btn-danger btn-lg">Go to Battle!</a>
+                    <a href="/users/battle" class="btn btn-danger btn-lg">Go to Battle!</a>
                 </div>
             </div>
 
@@ -162,7 +162,7 @@
             const item = document.createElement('li');
             item.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
             item.innerHTML = `
-    ${pokemonName}
+            ${pokemonName}
             <button class="btn btn-danger btn-sm" onclick="removeFromTeam('${pokemonId}')">
                 <i class="bi bi-trash"></i> Remove
             </button>
