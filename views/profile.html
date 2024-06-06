@@ -137,11 +137,27 @@
                 return;
             }
 
-            // Add the Pokémon to the team list
-            const listItem = document.createElement('li');
-            listItem.classList.add('list-group-item');
-            listItem.textContent = pokemonName;
-            teamList.appendChild(listItem);
+            // Create a limit on 6 Pokémon per team
+            if (teamList.children.length >= 6) {
+                alert('You can only have 6 Pokémon in your team.');
+                return;
+            } else {
+                // Add the Pokémon to the team list
+                const item = document.createElement('li');
+                item.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+                item.innerHTML = `
+                    ${pokemonName}
+                    <button class="btn btn-danger btn-sm" onclick="removeFromTeam(this)">
+                        <i class="bi bi-trash"></i> Remove
+                    </button>
+                `;
+                teamList.appendChild(item);
+            }
+        }
+
+        // Remove Pokémon from the user's team list
+        function removeFromTeam(button) {
+            button.parentElement.remove();
         }
 
         // Function to show Pokémon info in a modal
@@ -157,7 +173,7 @@
 
                     // Add relevant data points to the list
                     const fields = [
-                        'type', 'species', 'height', 'weight', 'abilities', 'ev_yield', 'catch_rate',
+                        'id', 'type', 'species', 'height', 'weight', 'abilities', 'ev_yield', 'catch_rate',
                         'base_friendship', 'base_exp', 'growth_rate', 'egg_groups', 'gender',
                         'hp_base', 'attack_base', 'defense_base', 'special_attack_base',
                         'special_defense_base', 'speed_base'
