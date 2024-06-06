@@ -1,79 +1,113 @@
 <%- include('header.html') %>
 
-    <body>
-        <div class="container mt-5">
-            <div class="row mb-4">
-                <div class="col text-center">
-                    <h1>Battle Arena</h1>
-                </div>
+<body>
+    <div class="container mt-5">
+        <div class="row mb-4">
+            <div class="col text-center">
+                <h1 class="display-4">Battle Arena</h1>
             </div>
+        </div>
 
-            <div class="row"></div>
-                <div id="current-pokemon" class="col-12">
-                    <div class="card-deck">
-                        <div class="card text-center">
-                            <div class="card-header">
-                                Your Pokemon
-                            </div>
+        <div class="row mb-4">
+            <div id="current-pokemon" class="col-12">
+                <div class="card-deck">
+                    <div class="card text-center">
+                        <div class="card-header bg-info text-white">
+                            Your Pokemon
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title" id="user-current-pokemon"></h5>
                             <div id="user-hp-${userActivePokemon.id}"></div>
-                            <div class="card-body">
-                                <h5 class="card-title" id="user-current-pokemon"></h5>
-                            </div>
                         </div>
-                        <div class="card text-center">
-                            <div class="card-header">
-                                Opponent's Pokemon
-                            </div>
+                    </div>
+                    <div class="card text-center">
+                        <div class="card-header bg-warning text-white">
+                            Opponent's Pokemon
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title" id="opponent-current-pokemon"></h5>
                             <div id="opponent-hp-${opponentActivePokemon.id}"></div>
-                            <div class="card-body">
-                                <h5 class="card-title" id="opponent-current-pokemon"></h5>
-                            </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Add the battle log below -->
-                <div class="row">
-                    <div class="col text-center">
-                        <h3>Battle Log</h3>
-                    </div>
-                </div>
-            </div>
-
-            <div id="battle-log"></div>
-
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header bg-primary text-white">
-                            Your Team
-                        </div>
-                        <div class="card-body" id="user-team-container">
-                            <ul class="list-group" id="user-team-list"></ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header bg-danger text-white">
-                            Opponent's Team
-                        </div>
-                        <div class="card-body" id="opponent-team-container">
-                            <ul class="list-group" id="opponent-team-list"></ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row justify-content-center mt-4">
-                <div class="col text-center">
-                    <input type="text" id="battle-command" class="form-control mb-3"
-                        placeholder="Enter command (attack, defend, switch)">
-                    <button class="btn btn-success" onclick="processCommand()">Submit Command</button>
-                    <div class="mt-3" id="battle-log"></div>
                 </div>
             </div>
         </div>
+
+        <!-- Battle log section -->
+        <div class="row mb-4">
+            <div class="col text-center">
+                <h3 class="text-success">Battle Log</h3>
+            </div>
+        </div>
+
+        <div id="battle-log" class="bg-light p-3 rounded mb-4"></div>
+
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        Your Team
+                    </div>
+                    <div class="card-body" id="user-team-container">
+                        <ul class="list-group" id="user-team-list"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        Opponent's Team
+                    </div>
+                    <div class="card-body" id="opponent-team-container">
+                        <ul class="list-group" id="opponent-team-list"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center mt-4">
+            <div class="col text-center">
+                <input type="text" id="battle-command" class="form-control mb-3"
+                    placeholder="Enter command (attack, defend, switch)">
+                <button class="btn btn-success" onclick="processCommand()">Submit Command</button>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        body {
+            background: url('battle-background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #343a40;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            font-size: 1.25rem;
+        }
+
+        #battle-log {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            background: #f8f9fa;
+        }
+
+        .list-group-item {
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</body>
 
         <script>
             let userTeam = [];
