@@ -19,7 +19,7 @@ CREATE TABLE pokemon (
 COPY pokemon(
     Pokemon, Type, Speed, HP, Defense, Attack
 )
-FROM PROGRAM 'cat /path/to/csv/pokemon.csv | awk -F, ''NR==1 {for (i=1; i<=NF; i++) col[$i] = i} NR>1 {print $col["Pokemon"], $col["Type"], $col["Speed_Base"], $col["HP_Base"], $col["Defense_Base"], $col["Attack_Base"]}'' OFS=,' DELIMITER ',' CSV HEADER;
+FROM PROGRAM 'cat pokemon.csv | awk -F, ''NR==1 {for (i=1; i<=NF; i++) col[$i] = i} NR>1 {print $col["Pokemon"], $col["Type"], $col["Speed_Base"], $col["HP_Base"], $col["Defense_Base"], $col["Attack_Base"]}'' OFS=,' DELIMITER ',' CSV HEADER;
 
 -- Create the teams table
 CREATE TABLE IF NOT EXISTS teams (
