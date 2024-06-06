@@ -9,15 +9,15 @@
             </div>
 
             <div class="row">
-                <!-- Current Team Section -->
                 <div class="col-md-6 mb-4">
                     <div class="card">
                         <div class="card-header bg-primary text-white">
                             Your Current Team
                         </div>
-                        <div class="card-body">
-                            <ul class="list-group" id="team-list">
-                            </ul>
+                        <div class="card-body" id="team-container">
+                            <ul class="list-group" id="team-list"></ul>
+                            <button class="btn btn-primary mt-3" id="save-team-button" onclick="saveTeam()">Save
+                                Team</button>
                         </div>
                     </div>
                 </div>
@@ -28,12 +28,10 @@
                     <div class="card-body">
                         <input type="text" id="search-box" class="form-control mb-3" placeholder="Type to search..."
                             oninput="filterPokemonList()">
-                        <ul id="names" class="list-group" style="max-height: 250px; overflow-y: auto; width: 400px;">
-                            <!-- List items will be populated dynamically -->
+                        <ul id="names" class="list-group" style="max-height: 350px; overflow-y: auto; width: 400px;">
                         </ul>
                     </div>
                 </div>
-
             </div>
 
             <!-- Battle Button Section -->
@@ -75,17 +73,42 @@
     </body>
 
     <script>
-        // This will hold the list of all available Pokémon for filtering purposes
         let allPokemons = [];
+        let currentTeam = [];
 
-        // Retrieve the user's Pokémon team or all available Pokémon
-        function getInfinimons() {
+        function getUserTeam() {
+            console.log('Getting user team');
+            const userID = '<%= userId %>';
+            console.log(userID);
             $.ajax({
-                url: '/infinimon',
+                url: '/team',
                 type: 'GET',
+                headers: {
+                    'user_id': userID
+                },
                 success: function (data) {
-                    allPokemons = data.map((infinimon) => infinimon.pokemon);
-                    populatePokemonList(allPokemons);
+                    currentTeam = [];
+                    const teamList = document.getElementById('team-list');
+                    teamList.innerHTML = '';
+
+                    if (data) {
+                        for (let i = 1; i <= 6; i++) {
+                            const pokemonId = data[`pokemon${i}_id`];
+                            if (pokemonId) {
+                                currentTeam.push(pokemonId);
+                                const item = document.createElement('li');
+                                item.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+                                item.innerHTML = `
+                                ${allPokemons.find((pokemon) => pokemon.id === pokemonId).name}
+                                ${pokemonId}
+                                <button class="btn btn-danger btn-sm" onclick="removeFromTeam('${pokemonId}')">
+                                    <i class="bi bi-trash"></i> Remove
+                                </button>
+                            `;
+                                teamList.appendChild(item);
+                            }
+                        }
+                    }
                 },
                 error: function (err) {
                     console.log(err);
@@ -93,91 +116,181 @@
             });
         }
 
-        // Populate the Pokémon list dynamically
+        function addToTeam(pokemonId, pokemonName) {
+            const teamList = document.getElementById('team-list');
+
+            if (currentTeam.includes(pokemonId.toString())) {
+                alert(`${pokemonName} is already in your team.`);
+                return;
+            }
+
+            if (currentTeam.length >= 6) {
+                alert('You can only have 6 Pokémon in your team.');
+                return;
+            }
+
+            currentTeam.push(pokemonId.toString());
+
+            const item = document.createElement('li');
+            item.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+            item.innerHTML = `
+                ${pokemonName}
+                <button class="btn btn-danger btn-sm" onclick="removeFromTeam('${pokemonId}')">
+                    <i class="bi bi-trash"></i> Remove
+                </button>
+            `;
+            teamList.appendChild(item);
+
+            console.log(currentTeam);
+        }
+
+        function addToTeam(pokemonId, pokemonName) {
+            const teamList = document.getElementById('team-list');
+
+            if (currentTeam.includes(pokemonId.toString())) {
+                alert(`${pokemonName} is already in your team.`);
+                return;
+            }
+
+            if (currentTeam.length >= 6) {
+                alert('You can only have 6 Pokémon in your team.');
+                return;
+            }
+
+            currentTeam.push(pokemonId.toString());
+
+            const item = document.createElement('li');
+            item.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+            item.innerHTML = `
+    ${pokemonName}
+            <button class="btn btn-danger btn-sm" onclick="removeFromTeam('${pokemonId}')">
+                <i class="bi bi-trash"></i> Remove
+            </button>
+        `;
+            teamList.appendChild(item);
+
+            console.log(currentTeam);
+        }
+
+        function removeFromTeam(pokemonName) {
+            console.log('Removing ' + pokemonName);
+            const teamList = document.getElementById('team-list');
+            currentTeam = currentTeam.filter(pokemon => pokemon.toString() !== pokemonName.toString());
+            const item = Array.from(teamList.children).find(
+                (item) => item.textContent.trim().startsWith(pokemonName.toString())
+            );
+            if (item) {
+                item.remove();
+            }
+            console.log(currentTeam);
+        }
+
+        function getInfinimons() {
+            $.ajax({
+                url: '/infinimon',
+                type: 'GET',
+                success: function (data) {
+                    allPokemons = data.map((infinimon) => ({
+                        name: infinimon.pokemon,
+                        id: infinimon.id
+                    }));
+                    populatePokemonList(allPokemons);
+                    getUserTeam();
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        }
+
+        function createNewTeam() {
+            $.ajax({
+                url: '/team/new',
+                type: 'POST',
+                success: function (data) {
+                    getUserTeam();
+                },
+                error: function (err) {
+                    console.log(err);
+                    alert('Error creating new team');
+                }
+            });
+        }
+
+        function saveTeam() {
+            if (currentTeam.length !== 6) {
+                alert('You must have exactly 6 Pokémon in your team.');
+                return;
+            }
+
+            const userID = '<%= userId %>';
+            $.ajax({
+                url: '/team',
+                type: 'PUT',
+                headers: {
+                    'user_id': userID
+                },
+                contentType: 'application/json',
+                data: JSON.stringify({team: currentTeam}),
+                success: function () {
+                    alert('Team saved successfully!');
+                },
+                error: function (err) {
+                    console.log(err);
+                    alert('Error saving team');
+                }
+            });
+        }
+
         function populatePokemonList(pokemons) {
             const list = document.getElementById('names');
             list.innerHTML = '';
 
-            pokemons.forEach((name) => {
-                // Create a list item with info and add-to-team buttons
+            console.log(pokemons);
+
+            pokemonNames = pokemons.map((infinimon) => infinimon.name);
+
+            pokemons.forEach((pokemon) => {
                 const item = document.createElement('li');
                 item.classList.add('list-group-item', 'pokemon-item', 'd-flex', 'justify-content-between', 'align-items-center');
                 item.innerHTML = `
-                    ${name}
-                    <div>
-                        <button class="btn btn-info btn-sm mr-2" onclick="showPokemonInfo('${name}')">
-                            <i class="bi bi-info-circle"></i> Info
-                        </button>
-                        <button class="btn btn-primary btn-sm" onclick="addToTeam('${name}')">
-                            <i class="bi bi-plus-circle"></i> Add to Team
-                        </button>
-                    </div>
-                `;
+                ${pokemon.name}
+                ${pokemon.id}
+                <div>
+                    <button class="btn btn-info btn-sm mr-2" onclick="showPokemonInfo('${pokemon.name}')">
+                        <i class="bi bi-info-circle"></i> Info
+                    </button>
+                    <button class="btn btn-primary btn-sm" onclick="addToTeam('${pokemon.id}', '${pokemon.name}')">
+                        <i class="bi bi-plus-circle"></i> Add to Team
+                    </button>
+                </div>
+            `;
                 list.appendChild(item);
             });
         }
 
-        // Filter the Pokémon list based on the search box input
         function filterPokemonList() {
             const searchQuery = document.getElementById('search-box').value.toLowerCase();
             const filteredPokemons = allPokemons.filter((name) => name.toLowerCase().includes(searchQuery));
             populatePokemonList(filteredPokemons);
         }
 
-        // Add Pokémon to the user's team list
-        function addToTeam(pokemonName) {
-            const teamList = document.getElementById('team-list');
-
-            // Check if the Pokémon is already in the team
-            const existingItem = Array.from(teamList.children).find(
-                (item) => item.textContent.trim().startsWith(pokemonName)
-            );
-            if (existingItem) {
-                alert(`${pokemonName} is already in your team.`);
-                return;
-            }
-
-            // Create a limit on 6 Pokémon per team
-            if (teamList.children.length >= 6) {
-                alert('You can only have 6 Pokémon in your team.');
-                return;
-            } else {
-                // Add the Pokémon to the team list
-                const item = document.createElement('li');
-                item.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
-                item.innerHTML = `
-                    ${pokemonName}
-                    <button class="btn btn-danger btn-sm" onclick="removeFromTeam(this)">
-                        <i class="bi bi-trash"></i> Remove
-                    </button>
-                `;
-                teamList.appendChild(item);
-            }
-        }
-
-        // Remove Pokémon from the user's team list
-        function removeFromTeam(button) {
-            button.parentElement.remove();
-        }
-
-        // Function to show Pokémon info in a modal
         function showPokemonInfo(pokemonName) {
             $.ajax({
                 url: '/pokemon/' + pokemonName,
                 type: 'GET',
                 success: function (data) {
-                    // Set image and information in the modal
                     document.getElementById('pokemon-image').src = data.image;
                     const detailsList = document.getElementById('pokemon-details');
                     detailsList.innerHTML = '';
 
-                    // Add relevant data points to the list
                     const fields = [
                         'id', 'type', 'species', 'height', 'weight', 'abilities', 'ev_yield', 'catch_rate',
                         'base_friendship', 'base_exp', 'growth_rate', 'egg_groups', 'gender',
                         'hp_base', 'attack_base', 'defense_base', 'special_attack_base',
                         'special_defense_base', 'speed_base'
                     ];
+
                     fields.forEach((field) => {
                         const value = data[field];
                         if (value) {
@@ -188,7 +301,6 @@
                         }
                     });
 
-                    // Show the modal
                     new bootstrap.Modal(document.getElementById('pokemonInfoModal')).show();
                 },
                 error: function (err) {
@@ -198,6 +310,5 @@
             });
         }
 
-        // Initial Pokémon load
         getInfinimons();
     </script>
