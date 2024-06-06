@@ -41,14 +41,31 @@ router.get('/register', (req, res) => {
     res.render('register.html');
 });
 
+
+// User registration route
 router.post('/register', async (req, res) => {
     const { username, password } = req.body;
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
-        await db.query(
-            'INSERT INTO users (username, password) VALUES ($1, $2)',
+        const userResult = await db.query(
+            'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id',
             [username, hashedPassword]
         );
+
+        const userId = userResult.rows[0].id;
+
+        // Initialize an empty team for the new user
+        await db.query(
+            'INSERT INTO teams (user_id, pokemon1_id, pokemon2_id, pokemon3_id, pokemon4_id, pokemon5_id, pokemon6_id) VALUES ($1, $2, $3, $4, $5, $6, $7)', // Generate random numbers from 1 to 1214
+            [userId
+            , Math.floor(Math.random() * 1210) + 1
+            , Math.floor(Math.random() * 1210) + 1
+            , Math.floor(Math.random() * 1210) + 1
+            , Math.floor(Math.random() * 1210) + 1
+            , Math.floor(Math.random() * 1210) + 1
+            , Math.floor(Math.random() * 1210) + 1]
+        );
+
         res.redirect('/users/login');
     } catch (error) {
         console.error(error);
