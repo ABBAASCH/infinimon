@@ -12,6 +12,11 @@ npm install dotenv
 npm install bcrypt passport express-session
 ```
 
+To serve the project on localhost on the port given in app.js:
+```
+npm run start
+```
+
 Commands used for the project are listed below.
 
 ```
@@ -58,5 +63,31 @@ Speed_Max INT
 COPY pokemon(pokemon,type,species,height,weight,abilities,ev_yield,catch_rate,base_friendship,base_exp,growth_rate,egg_groups,gender,egg_cycles,hp_base,hp_min,hp_max,attack_base,attack_min,attack_max,defense_base,defense_min,defense_max,special_attack_base,special_attack_min,special_attack_max,special_defense_base,special_defense_min,special_defense_max,speed_base,speed_min,speed_max)
 FROM '/path/to/csv/pokemon.csv'
 DELIMITER ',' CSV HEADER;
+```
+
+```
+# Add an id column to the pokemon table for creating the teams
+ALTER TABLE pokemon ADD COLUMN id SERIAL PRIMARY KEY;
+```
+
+```
+# Create the teams table
+CREATE TABLE IF NOT EXISTS teams (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    pokemon1_id INTEGER NOT NULL,
+    pokemon2_id INTEGER NOT NULL,
+    pokemon3_id INTEGER NOT NULL,
+    pokemon4_id INTEGER NOT NULL,
+    pokemon5_id INTEGER NOT NULL,
+    pokemon6_id INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (pokemon1_id) REFERENCES pokemon (id),
+    FOREIGN KEY (pokemon2_id) REFERENCES pokemon (id),
+    FOREIGN KEY (pokemon3_id) REFERENCES pokemon (id),
+    FOREIGN KEY (pokemon4_id) REFERENCES pokemon (id),
+    FOREIGN KEY (pokemon5_id) REFERENCES pokemon (id),
+    FOREIGN KEY (pokemon6_id) REFERENCES pokemon (id)
+);
 ```
 
