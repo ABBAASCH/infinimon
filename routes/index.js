@@ -66,85 +66,31 @@ router.post('/search', async (req, res) => {
 );
 
 
-// Get the current user's team
+router.get('/getteam', async (req, res) => {
+    const userId = req.headers['user_id'];
+    const result = await db.query('SELECT * FROM teams WHERE user_id = $1', [userId]);
+    res.json(result.rows[0]);
+});
 
 router.get('/team', async (req, res) => {
-    try {
-        const userId = req.headers['user_id'];
-        if (!userId) {
-            return res.status(400).send('User ID is required');
-        }
-
-        const result = await db.query('SELECT * FROM teams WHERE user_id = $1', [userId]);
-        res.json(result.rows[0] || null);
-    } catch (err) {
-        console.error('Error fetching team:', err.message);
-        res.status(500).send('Server Error');
-    }
+    const userId = req.headers['user_id'];
+    const result = await db.query('SELECT * FROM teams WHERE user_id = $1', [userId]);
+    const pokemonIds = [
+        result.rows[0].pokemon1_id,
+        result.rows[0].pokemon2_id,
+        result.rows[0].pokemon3_id,
+        result.rows[0].pokemon4_id,
+        result.rows[0].pokemon5_id,
+        result.rows[0].pokemon6_id
+    ];
+    const pokemonDetails = await db.query('SELECT * FROM pokemon WHERE id = ANY($1)', [pokemonIds]);
+    res.json(pokemonDetails.rows);
 });
 
-
-router.put('/team', async (req, res) => {
-    try {
-        const userId = req.headers['user_id'];
-        const team = req.body.team;
-
-        if (!userId) {
-            return res.status(400).send('User ID is required');
-        }
-
-        if (!team || team.length !== 6) {
-            return res.status(400).send('Team must have exactly 6 Pokémon');
-        }
-
-        await db.query('UPDATE teams SET pokemon1_id = $1, pokemon2_id = $2, pokemon3_id = $3, pokemon4_id = $4, pokemon5_id = $5, pokemon6_id = $6 WHERE user_id = $7', [
-            team[0], team[1], team[2], team[3], team[4], team[5], userId
-        ]);
-
-        res.send('Team updated successfully');
-    } catch (err) {
-        console.error('Error updating team:', err.message);
-        res.status(500).send('Server Error');
-    }
+router.get('/randomteam', async (req, res) => {
+    const result = await db.query('SELECT * FROM pokemon ORDER BY RANDOM() LIMIT 6');
+    res.json(result.rows);
 });
-
-
-// Remove a Pokémon from the user's team
-router.delete('/team', async (req, res) => {
-    try {
-        const userId = req.user.id;
-        const { pokemonId } = req.body;
-        const team = await pool.query('SELECT * FROM teams WHERE user_id = $1', [userId]);
-
-        if (team.rows.length === 0) {
-            return res.status(400).send('No team found');
-        }
-
-        const currentTeam = team.rows[0];
-        let columnToUpdate = null;
-        for (const [key, value] of Object.entries(currentTeam)) {
-            if (value === pokemonId) {
-                columnToUpdate = key;
-                break;
-            }
-        }
-
-        if (!columnToUpdate) {
-            return res.status(400).send('Pokémon not found in team');
-        }
-
-        await pool.query(
-            `UPDATE teams SET ${columnToUpdate} = NULL WHERE user_id = $1`,
-            [userId]
-        );
-
-        res.send('Pokémon removed from team');
-    } catch (err) {
-        console.error('Error removing Pokémon from team:', err.message);
-        res.status(500).send('Server Error');
-    }
-});
-
 
 module.exports = router;
 

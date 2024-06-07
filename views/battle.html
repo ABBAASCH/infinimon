@@ -8,69 +8,67 @@
                 </div>
             </div>
 
-            <div class="row"></div>
-                <div id="current-pokemon" class="col-12">
-                    <div class="card-deck">
-                        <div class="card text-center">
-                            <div class="card-header">
-                                Your Pokemon
-                            </div>
-                            <div id="user-hp-${userActivePokemon.id}"></div>
-                            <div class="card-body">
-                                <h5 class="card-title" id="user-current-pokemon"></h5>
-                            </div>
-                        </div>
-                        <div class="card text-center">
-                            <div class="card-header">
-                                Opponent's Pokemon
-                            </div>
-                            <div id="opponent-hp-${opponentActivePokemon.id}"></div>
-                            <div class="card-body">
-                                <h5 class="card-title" id="opponent-current-pokemon"></h5>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Add the battle log below -->
-                <div class="row">
-                    <div class="col text-center">
-                        <h3>Battle Log</h3>
-                    </div>
-                </div>
-            </div>
-
-            <div id="battle-log"></div>
-
             <div class="row">
+                <!-- User's Team Section -->
                 <div class="col-md-6 mb-4">
                     <div class="card">
                         <div class="card-header bg-primary text-white">
                             Your Team
                         </div>
-                        <div class="card-body" id="user-team-container">
+                        <div class="card-body">
                             <ul class="list-group" id="user-team-list"></ul>
                         </div>
                     </div>
                 </div>
+
+                <!-- Opponent's Team Section -->
                 <div class="col-md-6 mb-4">
                     <div class="card">
                         <div class="card-header bg-danger text-white">
                             Opponent's Team
                         </div>
-                        <div class="card-body" id="opponent-team-container">
+                        <div class="card-body">
                             <ul class="list-group" id="opponent-team-list"></ul>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="row justify-content-center mt-4">
+            <!-- Battle Log Section -->
+            <div class="row">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header bg-secondary text-white">
+                            Battle Log
+                        </div>
+                        <div class="card-body" id="battle-log" style="max-height: 400px; overflow-y: auto;">
+                            <ul class="list-group"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Input Section -->
+            <div class="row mt-4">
                 <div class="col text-center">
-                    <input type="text" id="battle-command" class="form-control mb-3"
-                        placeholder="Enter command (attack, defend, switch)">
-                    <button class="btn btn-success" onclick="processCommand()">Submit Command</button>
-                    <div class="mt-3" id="battle-log"></div>
+                    <input type="text" id="action-input" class="form-control"
+                        placeholder="Enter your action (e.g., attack or defend)">
+                    <button class="btn btn-success mt-3" onclick="processUserAction()">Submit Action</button>
+                </div>
+            </div>
+
+            <!-- Battle Summary Section -->
+            <div class="row mt-4">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            Battle Summary
+                        </div>
+                        <div class="card-body" id="battle-summary">
+                            <p id="user-pokemon-name"></p>
+                            <p id="opponent-pokemon-name"></p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -78,27 +76,43 @@
         <script>
             let userTeam = [];
             let opponentTeam = [];
-            let allPokemons = [];
-            let userActivePokemon = null;
-            let opponentActivePokemon = null;
+            let battleLog = [];
+            let userTurn = true;
+            let currentUserPokemon;
+            let currentOpponentPokemon;
 
-            function getRandomInt(max) {
-                return Math.floor(Math.random() * max);
+            function fetchUserTeam() {
+                const userID = '<%= userId %>';
+                $.ajax({
+                    url: '/team',
+                    type: 'GET',
+                    headers: {'user_id': userID},
+                    success: function (data) {
+                        userTeam = data;
+                        currentUserPokemon = userTeam.shift();
+                        displayTeams();
+                        displayCurrentPokemons();
+                    },
+                    error: function (err) {
+                        console.log(err);
+                    }
+                });
             }
 
-            function generateOpponentTeam() {
-                opponentTeam = [];
-                while (opponentTeam.length < 6) {
-                    const randomIndex = getRandomInt(allPokemons.length);
-                    const randomPokemon = allPokemons[randomIndex];
-                    if (!opponentTeam.includes(randomPokemon)) {
-                        opponentTeam.push(randomPokemon);
+            function fetchOpponentTeam() {
+                $.ajax({
+                    url: '/randomteam',
+                    type: 'GET',
+                    success: function (data) {
+                        opponentTeam = data;
+                        currentOpponentPokemon = opponentTeam.shift();
+                        displayTeams();
+                        displayCurrentPokemons();
+                    },
+                    error: function (err) {
+                        console.log(err);
                     }
-                }
-                displayTeams();
-                userActivePokemon = userTeam[0];
-                opponentActivePokemon = opponentTeam[0];
-                updateBattleStatus();
+                });
             }
 
             function displayTeams() {
@@ -110,169 +124,117 @@
                 userTeam.forEach(pokemon => {
                     const item = document.createElement('li');
                     item.classList.add('list-group-item');
-                    item.innerHTML = `${pokemon.name} (${pokemon.id}) - HP: <span id="user-hp-${pokemon.id}">${pokemon.hp_base}</span>`;
+                    item.textContent = `Pokémon: ${pokemon.pokemon}`;
                     userTeamList.appendChild(item);
                 });
 
                 opponentTeam.forEach(pokemon => {
                     const item = document.createElement('li');
                     item.classList.add('list-group-item');
-                    item.innerHTML = `${pokemon.name} (${pokemon.id}) - HP: <span id="opponent-hp-${pokemon.id}">${pokemon.hp_base}</span>`;
+                    item.textContent = `Pokémon: ${pokemon.pokemon}`;
                     opponentTeamList.appendChild(item);
                 });
             }
 
-            function processCommand() {
-                const commandInput = document.getElementById('battle-command').value.toLowerCase();
-                const logDiv = document.getElementById('battle-log');
-                let logEntry = document.createElement('div');
-
-                let userAction = parseCommand(commandInput);
-                if (userAction === 'invalid') {
-                    logEntry.innerText = 'Invalid command! Please enter attack, defend, or switch.';
-                    logDiv.appendChild(logEntry);
-                    return;
-                }
-
-                let opponentAction = generateOpponentAction();
-                logEntry.innerHTML = `<b>User action:</b> ${userAction}<br><b>Opponent action:</b> ${opponentAction}`;
-                logDiv.appendChild(logEntry);
-
-                performActions(userAction, opponentAction);
-                checkEndOfTurn();
+            function displayCurrentPokemons() {
+                document.getElementById('user-pokemon-name').textContent = `Your Pokémon: ${currentUserPokemon.pokemon}`;
+                document.getElementById('opponent-pokemon-name').textContent = `Opponent's Pokémon: ${currentOpponentPokemon.pokemon}`;
             }
 
-            function parseCommand(command) {
-                if (/attack/i.test(command)) {
-                    return 'attack';
-                } else if (/defend/i.test(command)) {
-                    return 'defend';
+            function logBattleEvent(event) {
+                battleLog.push(event);
+                const logList = document.getElementById('battle-log').querySelector('ul');
+                const logItem = document.createElement('li');
+                logItem.classList.add('list-group-item');
+                logItem.textContent = event;
+                logList.appendChild(logItem);
+                logItem.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            function processUserAction() {
+                const actionInput = document.getElementById('action-input').value;
+                const attackRegex = /^attack$/i;
+                const defendRegex = /^defend$/i;
+
+                if (attackRegex.test(actionInput)) {
+                    userAttack();
+                } else if (defendRegex.test(actionInput)) {
+                    userDefend();
                 } else {
-                    return 'invalid';
+                    alert('Invalid action. Please enter "attack" or "defend".');
                 }
             }
 
-            function generateOpponentAction() {
-                const actions = ['attack', 'defend', 'switch'];
-                return actions[getRandomInt(actions.length)];
-            }
+            function userAttack() {
+                if (!userTurn) return;
+                const damage = Math.floor(Math.random() * 20) + 10;
+                logBattleEvent(`${currentUserPokemon.pokemon} attacks ${currentOpponentPokemon.pokemon}, dealing ${damage} damage.`);
+                currentOpponentPokemon.hp_base -= damage;
 
-            function performActions(userAction, opponentAction) {
-                // Clear the battle log
-                document.getElementById('battle-log').innerHTML = '';
-
-                // Update the current Pokemon
-                document.getElementById('user-current-pokemon').innerText = userActivePokemon.name;
-                document.getElementById('opponent-current-pokemon').innerText = opponentActivePokemon.name;
-
-                // User's turn
-                if (userAction === 'attack') {
-                    userLog = `${userActivePokemon.name} attacks!`;
-                    if (opponentAction !== 'defend') {
-                        opponentActivePokemon.hp_base -= userActivePokemon.attack_base;
-                        if (opponentActivePokemon.hp_base < 0) opponentActivePokemon.hp_base = 0;
+                if (currentOpponentPokemon.hp_base <= 0) {
+                    logBattleEvent(`${currentOpponentPokemon.pokemon} is defeated!`);
+                    if (opponentTeam.length > 0) {
+                        currentOpponentPokemon = opponentTeam.shift();
+                        displayTeams();
+                        displayCurrentPokemons();
+                    } else {
+                        logBattleEvent('You win the battle!');
+                        return;
                     }
-                } else if (userAction === 'defend') {
-                    userLog = `${userActivePokemon.name} defends!`;
-                } 
-
-                // Update the opponent's HP
-                document.getElementById('opponent-hp').innerText = opponentActivePokemon.hp_base;
-
-                // Opponent's turn
-                if (opponentAction === 'attack') {
-                    opponentLog = `${opponentActivePokemon.name} attacks!`;
-                    if (userAction !== 'defend') {
-                        userActivePokemon.hp_base -= opponentActivePokemon.attack_base;
-                        if (userActivePokemon.hp_base < 0) userActivePokemon.hp_base = 0;
-                    }
-                } else if (opponentAction === 'defend') {
-                    opponentLog = `${opponentActivePokemon.name} defends!`;
-                } 
-
-                // Update the user's HP
-                document.getElementById('user-hp').innerText = userActivePokemon.hp_base;
-
-                // Check if a player has won
-                if (userTeam.length === 0) {
-                    alert('Opponent has won!');
-                } else if (opponentTeam.length === 0) {
-                    alert('You have won!');
-                }
-            }
-
-            function removePokemon(player) {
-                if (player === 'user') {
-                    userTeam = userTeam.filter(pokemon => pokemon.hp_base > 0);
-                } else {
-                    opponentTeam = opponentTeam.filter(pokemon => pokemon.hp_base > 0);
                 }
 
-                displayTeams();
+                userTurn = false;
+                opponentTurn();
             }
 
-            function switchPokemon(player) {
-                if (player === 'user') {
-                    userActivePokemon = userTeam.find(pokemon => pokemon.hp_base > 0);
-                } else {
-                    opponentActivePokemon = opponentTeam.find(pokemon => pokemon.hp_base > 0);
-                }
+            function userDefend() {
+                if (!userTurn) return;
+                logBattleEvent(`${currentUserPokemon.pokemon} defends.`);
+                userTurn = false;
+                opponentTurn();
             }
 
-            function updateBattleStatus() {
-                document.getElementById(`user-hp-${userActivePokemon.id}`).innerText = userActivePokemon.hp_base;
-                document.getElementById(`opponent-hp-${opponentActivePokemon.id}`).innerText = opponentActivePokemon.hp_base;
-            }
+            function opponentTurn() {
+                setTimeout(() => {
+                    if (Math.random() < 0.5) {
+                        const damage = Math.floor(Math.random() * 20) + 10;
+                        logBattleEvent(`${currentOpponentPokemon.pokemon} attacks ${currentUserPokemon.pokemon}, dealing ${damage} damage.`);
+                        currentUserPokemon.hp_base -= damage;
 
-            function getUserTeam() {
-                const userID = '<%= userId %>';
-                $.ajax({
-                    url: '/team',
-                    type: 'GET',
-                    headers: {
-                        'user_id': userID
-                    },
-                    success: function (data) {
-                        userTeam = [];
-                        if (data) {
-                            for (let i = 1; i <= 6; i++) {
-                                const pokemonId = data[`pokemon${i}_id`];
-                                if (pokemonId) {
-                                    const pokemon = allPokemons.find(p => p.id === pokemonId);
-                                    if (pokemon) {
-                                        userTeam.push({...pokemon});
-                                    }
-                                }
+                        if (currentUserPokemon.hp_base <= 0) {
+                            logBattleEvent(`${currentUserPokemon.pokemon} is defeated!`);
+                            if (userTeam.length > 0) {
+                                currentUserPokemon = userTeam.shift();
+                                displayTeams();
+                                displayCurrentPokemons();
+                            } else {
+                                logBattleEvent('You lose the battle.');
+                                return;
                             }
                         }
-                        generateOpponentTeam();
-                    },
-                    error: function (err) {
-                        console.log(err);
+                    } else {
+                        logBattleEvent(`${currentOpponentPokemon.pokemon} defends.`);
                     }
-                });
+                    userTurn = true;
+                }, 1000);
             }
 
-            function getInfinimons() {
-                $.ajax({
-                    url: '/infinimon',
-                    type: 'GET',
-                    success: function (data) {
-                        allPokemons = data.map((infinimon) => ({
-                            name: infinimon.pokemon,
-                            id: infinimon.id,
-                            hp_base: infinimon.hp_base,
-                            attack_base: infinimon.attack_base
-                        }));
-                        getUserTeam();
-                    },
-                    error: function (err) {
-                        console.log(err);
-                    }
-                });
+            function startNewBattle() {
+                fetchUserTeam();
+                fetchOpponentTeam();
+                battleLog = [];
+                document.getElementById('battle-log').querySelector('ul').innerHTML = '';
             }
 
-            getInfinimons();
+            document.addEventListener('DOMContentLoaded', function () {
+                startNewBattle();
+            });
         </script>
+
+        <style>
+            #battle-log {
+                height: 300px; /* Adjust as needed */
+                overflow: auto;
+            }
+        </style>
     </body>
-               
