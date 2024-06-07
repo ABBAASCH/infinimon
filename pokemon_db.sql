@@ -39,3 +39,10 @@ CREATE TABLE IF NOT EXISTS teams (
     FOREIGN KEY (pokemon5_id) REFERENCES pokemon (id),
     FOREIGN KEY (pokemon6_id) REFERENCES pokemon (id)
 );
+
+-- Create users table
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(50) NOT NULL
+);
