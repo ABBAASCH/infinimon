@@ -287,7 +287,9 @@
 
         function filterPokemonList() {
             const searchQuery = document.getElementById('search-box').value.toLowerCase();
-            const filteredPokemons = allPokemons.filter((name) => name.toLowerCase().includes(searchQuery));
+            console.log(allPokemons);
+            console.log(searchQuery);
+            const filteredPokemons = allPokemons.filter((name) => name.name.toLowerCase().includes(searchQuery));
             populatePokemonList(filteredPokemons);
         }
 
