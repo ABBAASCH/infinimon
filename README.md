@@ -44,9 +44,16 @@ Replace the `your_username` with your own username.
 After the above you will have to change the path in the load.sql file. This has to be the absolute path to the .csv file in the data directory. Replace this path in load.sql with your own absolute path, depending on your system.
 
 ```
- /absolute/path/infinimon/data/archive/pokemonDB_dataset.csv
+/absolute/path/infinimon/data/archive/pokemonDB_dataset.csv
+
+# For example on mac/linux
+/Users/username/infinimon/project/infinimon/data/archive/pokemonDB_dataset.csv
+
+# Or on windows it could be something like the following
+C:\Users\UserName\Desktop\infinimon\data\archive\pokemonDB_dataset.csv
 ```
 
+On Linux and Mac this can be done with the `pwd` command.
 
 ## Establish database connection
 
@@ -94,3 +101,10 @@ From here you will need to scroll down and in the input box type the exact name 
 If a pokemons `HP` reaches 0 then it is swapped with a new one from their team. This is reapeated until one of the teams are empty and we have found a winner.
 
 You can repeat this over and over. You and also go back to `/users/profile` to modify your team.
+
+
+## Dataset
+
+The dataset is found [here](https://www.kaggle.com/datasets/divyanshusingh369/complete-pokemon-library-32k-images-and-csv).
+
+It is free and can be downloaded on `kaggle`.
