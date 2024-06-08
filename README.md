@@ -15,6 +15,8 @@ cd infinimon
 # Infinimon - project
 
 ## Dependencies:
+
+Running `npm install` should take care of all the dependencies needed. If not, then look at the added packages below:
 ```
 # For database connection
 npm install pg
