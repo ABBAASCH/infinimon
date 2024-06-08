@@ -45,3 +45,10 @@ CREATE TABLE IF NOT EXISTS teams (
     FOREIGN KEY (pokemon6_id) REFERENCES pokemon (id)
 );
 
+-- Create the querytest table
+CREATE TABLE IF NOT EXISTS querytest (
+    query_word character(10)
+);
+
+-- Insert value into the querytest table
+INSERT INTO querytest (query_word) VALUES ('HELLO_DB');
