@@ -1,6 +1,20 @@
-# Infinimon
+# Getting started
 
-Dependencies:
+Clone the repository:
+
+```
+git clone git@github.com:ABBAASCH/infinimon.git
+```
+
+Navigate to the root of the project:
+
+```
+cd infinimon
+```
+
+# Infinimon - project
+
+## Dependencies:
 ```
 # For database connection
 npm install pg
@@ -10,6 +24,13 @@ npm install ejs
 npm install dotenv
 
 npm install bcrypt passport express-session
+
+```
+
+Remember to run `npm` install after for other dependencies:
+
+```
+npm install
 ```
 
 From the root of the project, please run the following command to set up the database and load the dataset as well:
@@ -19,6 +40,15 @@ psql -U your_username -f pokemon_db.sql
 ```
 
 Replace the `your_username` with your own username.
+
+After the above you will have to change the path in the load.sql file. This has to be the absolute path to the .csv file in the data directory. Replace this path in load.sql with your own absolute path, depending on your system.
+
+```
+ /absolute/path/infinimon/data/archive/pokemonDB_dataset.csv
+```
+
+
+## Establish database connection
 
 To establish a database connect, open at `.env_example` which should look like this:
 
@@ -41,6 +71,8 @@ To serve the project on localhost on the port given in app.js:
 ```
 npm run start
 ```
+
+## How to use the web page
 
 At the front page you will see a database connection test button. This button sends a query to the database to the `querytest` table.
 
