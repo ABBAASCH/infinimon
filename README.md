@@ -54,6 +54,11 @@ After the above you will have to change the path in the load.sql file. This has 
 # Or on windows it could be something like the following
 C:\Users\UserName\Desktop\infinimon\data\archive\pokemonDB_dataset.csv
 ```
+After the path is updated, run the following:
+
+```
+psql -U your_username -f load.sql
+```
 
 On Linux and Mac this can be done with the `pwd` command.
 
