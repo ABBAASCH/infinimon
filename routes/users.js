@@ -66,7 +66,7 @@ router.post('/register', async (req, res) => {
             , Math.floor(Math.random() * 1210) + 1]
         );
 
-        res.redirect('/users/login');
+        res.redirect('/users/profile?username=' + username);
     } catch (error) {
         console.error(error);
         res.redirect('/users/register?error=Registration failed');
