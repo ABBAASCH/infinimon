@@ -29,6 +29,16 @@ router.get('/infinimon', async (req, res) => {
 }
 );
 
+router.get('/abilities', async (req, res) => {
+    try {
+        const result = await db.query('SELECT id, abilities FROM pokemon');
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 // Route to fetch detailed Pokémon information
 router.get('/pokemon/:name', async (req, res) => {
     const pokemonName = req.params.name;

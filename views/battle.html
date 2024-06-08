@@ -53,17 +53,23 @@
                         </div>
                         <div class="card-body" id="battle-summary">
                             <p id="user-pokemon-name"></p>
+                            <p id="user-pokemon-abilities"></p>
+                            <p id="user-pokemon-hp"></p>
+                            <br>
+                            <hr>
+                            <br>
                             <p id="opponent-pokemon-name"></p>
+                            <p id="opponent-pokemon-hp"></p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Action Input Section -->
-            <div class="row mt-4">
+            <div class="row mt-4" style="margin-bottom: 2.5rem">
                 <div class="col text-center">
                     <input type="text" id="action-input" class="form-control"
-                        placeholder="Enter your action (e.g., attack or defend)">
+                        placeholder="Enter a pokemon ability to attack (the abilities can be found to the right under Battle Summary) or type 'defend' to defend">
                     <button class="btn btn-success mt-3" onclick="processUserAction()">Submit Action</button>
                 </div>
             </div>
@@ -76,6 +82,7 @@
             let userTurn = true;
             let currentUserPokemon;
             let currentOpponentPokemon;
+            let abilities = [];
 
             function fetchUserTeam() {
                 const userID = '<%= userId %>';
@@ -111,6 +118,20 @@
                 });
             }
 
+            function getAbilities() {
+                $.ajax({
+                    url: '/abilities',
+                    type: 'GET',
+                    success: function (data) {
+                        abilities = data;
+                        console.log(abilities);
+                    },
+                    error: function (err) {
+                        console.log(err);
+                    }
+                });
+            }
+
             function displayTeams() {
                 const userTeamList = document.getElementById('user-team-list');
                 const opponentTeamList = document.getElementById('opponent-team-list');
@@ -132,9 +153,27 @@
                 });
             }
 
+            function parseAbilities(abilitiesString) {
+                // Use regex to split the abilities correctly, including hidden abilities
+                const abilitiesArray = abilitiesString.match(/(\d\.\s[^,]+(?:,\s[^,\(]+)?(?:,\s[^,\(]+)?(?:\s\(hidden ability\))?)/g).flatMap(ability => {
+                    // Split abilities by comma, remove the number and space, and hidden ability tag
+                    return ability.split(',').map(a => a.replace(/\d\.\s/, '').replace(/\s\(hidden ability\)/, '').trim());
+                });
+
+                return abilitiesArray;
+            }
+
             function displayCurrentPokemons() {
                 document.getElementById('user-pokemon-name').textContent = `Your Pokémon: ${currentUserPokemon.pokemon}`;
+                document.getElementById('user-pokemon-hp').textContent = `HP: ${currentUserPokemon.hp_base}`;
+
+                let currentAbilities = parseAbilities(currentUserPokemon.abilities);
+                console.log(currentAbilities);
+                abilities = currentAbilities;
+                document.getElementById('user-pokemon-abilities').textContent = `Pokemon abilities: ${currentAbilities.join(', ')}`;
+
                 document.getElementById('opponent-pokemon-name').textContent = `Opponent's Pokémon: ${currentOpponentPokemon.pokemon}`;
+                document.getElementById('opponent-pokemon-hp').textContent = `HP: ${currentOpponentPokemon.hp_base}`;
             }
 
             function logBattleEvent(event) {
@@ -159,6 +198,15 @@
                     return;
                 }
 
+                // match the abilities - Has to match exactly one of the abilities not just contain it
+                if (abilities.includes(actionInput)) {
+                    userAttack();
+                } else if (defendRegex.test(actionInput)) {
+                    userDefend();
+                } else {
+                    alert('Invalid action. Please enter "attack" or "defend".');
+                }
+                /*
                 if (attackRegex.test(actionInput)) {
                     userAttack();
                 } else if (defendRegex.test(actionInput)) {
@@ -166,6 +214,7 @@
                 } else {
                     alert('Invalid action. Please enter "attack" or "defend".');
                 }
+                */
             }
 
             function userAttack() {
@@ -173,6 +222,9 @@
                 const damage = Math.floor(Math.random() * 20) + 10;
                 logBattleEvent(`${currentUserPokemon.pokemon} attacks ${currentOpponentPokemon.pokemon}, dealing ${damage} damage.`);
                 currentOpponentPokemon.hp_base -= damage;
+
+                // Update the HP display
+                document.getElementById('opponent-pokemon-hp').textContent = `HP: ${currentOpponentPokemon.hp_base}`;
 
                 if (currentOpponentPokemon.hp_base <= 0) {
                     logBattleEvent(`${currentOpponentPokemon.pokemon} is defeated!`);
@@ -204,6 +256,9 @@
                         logBattleEvent(`${currentOpponentPokemon.pokemon} attacks ${currentUserPokemon.pokemon}, dealing ${damage} damage.`);
                         currentUserPokemon.hp_base -= damage;
 
+                        // Update the HP display
+                        document.getElementById('user-pokemon-hp').textContent = `HP: ${currentUserPokemon.hp_base}`;
+
                         if (currentUserPokemon.hp_base <= 0) {
                             logBattleEvent(`${currentUserPokemon.pokemon} is defeated!`);
                             if (userTeam.length > 0) {
@@ -231,6 +286,9 @@
 
             document.addEventListener('DOMContentLoaded', function () {
                 startNewBattle();
+
+                //debug print
+                getAbilities();
             });
         </script>
 
