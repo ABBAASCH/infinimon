@@ -1,3 +1,4 @@
+
 -- Create the infinimon database
 CREATE DATABASE infinimon;
 
@@ -5,26 +6,48 @@ CREATE DATABASE infinimon;
 \c infinimon;
 
 -- Create the users table
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    password VARCHAR(50) NOT NULL
+    username VARCHAR(250) UNIQUE NOT NULL,
+    password VARCHAR(250) NOT NULL
 );
 
 -- Create the pokemon table
 CREATE TABLE pokemon (
     id SERIAL PRIMARY KEY,
     Pokemon VARCHAR(50),
+    Type VARCHAR(50),
+    Species VARCHAR(50),
+    Height VARCHAR(50),
+    Weight VARCHAR(50),
     Abilities VARCHAR(100),
+    EV_Yield VARCHAR(50),
+    Catch_Rate VARCHAR(50),
+    Base_Friendship VARCHAR(50),
+    Base_Exp VARCHAR(50),
+    Growth_Rate VARCHAR(50),
+    Egg_Groups VARCHAR(50),
     Gender VARCHAR(50),
+    Egg_Cycles VARCHAR(50),
     HP_Base INT,
+    HP_Min INT,
+    HP_Max INT,
     Attack_Base INT,
+    Attack_Min INT,
+    Attack_Max INT,
+    Defense_Base INT,
+    Defense_Min INT,
+    Defense_Max INT,
+    Special_Attack_Base INT,
+    Special_Attack_Min INT,
+    Special_Attack_Max INT,
+    Special_Defense_Base INT,
+    Special_Defense_Min INT,
+    Special_Defense_Max INT,
+    Speed_Base INT,
+    Speed_Min INT,
+    Speed_Max INT
 );
-
--- Populate the pokemon table
-COPY pokemon(pokemon, abilities, gender, hp_base, attack_base)
-FROM './data/archive/pokemonDB_dataset.csv'
-DELIMITER ',' CSV HEADER;
 
 -- Create the teams table
 CREATE TABLE IF NOT EXISTS teams (
@@ -52,3 +75,6 @@ CREATE TABLE IF NOT EXISTS querytest (
 
 -- Insert value into the querytest table
 INSERT INTO querytest (query_word) VALUES ('HELLO_DB');
+
+
+
