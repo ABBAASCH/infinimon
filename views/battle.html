@@ -46,19 +46,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Action Input Section -->
-            <div class="row mt-4">
-                <div class="col text-center">
-                    <input type="text" id="action-input" class="form-control"
-                        placeholder="Enter your action (e.g., attack or defend)">
-                    <button class="btn btn-success mt-3" onclick="processUserAction()">Submit Action</button>
-                </div>
-            </div>
-
-            <!-- Battle Summary Section -->
-            <div class="row mt-4">
                 <div class="col">
                     <div class="card">
                         <div class="card-header bg-info text-white">
@@ -69,6 +56,15 @@
                             <p id="opponent-pokemon-name"></p>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Action Input Section -->
+            <div class="row mt-4">
+                <div class="col text-center">
+                    <input type="text" id="action-input" class="form-control"
+                        placeholder="Enter your action (e.g., attack or defend)">
+                    <button class="btn btn-success mt-3" onclick="processUserAction()">Submit Action</button>
                 </div>
             </div>
         </div>
@@ -148,13 +144,20 @@
                 logItem.classList.add('list-group-item');
                 logItem.textContent = event;
                 logList.appendChild(logItem);
-                logItem.scrollIntoView({ behavior: 'smooth' });
+                logItem.scrollIntoView({behavior: 'smooth'});
             }
 
             function processUserAction() {
                 const actionInput = document.getElementById('action-input').value;
                 const attackRegex = /^attack$/i;
                 const defendRegex = /^defend$/i;
+
+                // Check if either team has no more Pokémon
+                if (userTeam.length === 0 || opponentTeam.length === 0) {
+                    alert('The battle has ended. A new battle will start.');
+                    location.reload();
+                    return;
+                }
 
                 if (attackRegex.test(actionInput)) {
                     userAttack();
@@ -233,7 +236,8 @@
 
         <style>
             #battle-log {
-                height: 300px; /* Adjust as needed */
+                height: 300px;
+                /* Adjust as needed */
                 overflow: auto;
             }
         </style>

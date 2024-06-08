@@ -182,6 +182,22 @@
             if (item) {
                 item.remove();
             }
+
+            // Refresh the team list
+            teamList.innerHTML = '';
+            currentTeam.forEach((pokemonId) => {
+                const item = document.createElement('li');
+                item.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+                item.innerHTML = `
+                ${allPokemons.find((pokemon) => pokemon.id === pokemonId).name}
+                ${pokemonId}
+                <button class="btn btn-danger btn-sm" onclick="removeFromTeam('${pokemonId}')">
+                    <i class="bi bi-trash"></i> Remove
+                </button>
+            `;
+                teamList.appendChild(item);
+            });
+
             console.log(currentTeam);
         }
 
