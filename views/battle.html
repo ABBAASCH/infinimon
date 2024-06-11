@@ -204,17 +204,8 @@
                 } else if (defendRegex.test(actionInput)) {
                     userDefend();
                 } else {
-                    alert('Invalid action. Please enter "attack" or "defend".');
+                    alert('Invalid action. Please enter a relevant pokemon move (shown in the Battle Summary under your current pokemon) or type "defend".');
                 }
-                /*
-                if (attackRegex.test(actionInput)) {
-                    userAttack();
-                } else if (defendRegex.test(actionInput)) {
-                    userDefend();
-                } else {
-                    alert('Invalid action. Please enter "attack" or "defend".');
-                }
-                */
             }
 
             function userAttack() {
